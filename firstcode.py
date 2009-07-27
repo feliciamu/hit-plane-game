@@ -2,6 +2,8 @@
 import pygame 
 import sys
 from pygame.locals import *
+
+CLOCK_TICK = pygame.USEREVENT
  
 class CApp:
     def __init__(self):
@@ -11,10 +13,10 @@ class CApp:
  
     def OnInit(self):
         self.size = self.width, self.height = 640, 400
-        self.speed_down = [0, 1]
-        self.speed_right = [1, 0]
-        self.speed_up = [0, -1]
-        self.speed_left = [-1, 0]
+        self.speed_down =[0, 2]
+        self.speed_right = [2, 0]
+        self.speed_up = [0, -2]
+        self.speed_left = [-2, 0]
         self.black = 0, 0, 0
 
         pygame.init()
@@ -30,7 +32,7 @@ class CApp:
         self._display_surf.blit(self.background, (0, 0))
 
         # add a plane
-        self.plane = pygame.image.load("plane.png")
+        self.plane = pygame.image.load("plane.bmp")
         self.planerect = self.plane.get_rect()
 
         # add a bullet image
@@ -38,13 +40,28 @@ class CApp:
 
         # add a bullet list
         self.bullets = []
+
+        pygame.time.set_timer(CLOCK_TICK, 20)
  
     def OnEvent(self, event):
-        #event = pygame.event.poll()
         if event.type == QUIT:
             self._running = False
             sys.exit()
-
+        elif event.type == CLOCK_TICK:
+           for rect in self.bullets:
+                self.bullets.remove(rect)
+                rect = rect.move(self.speed_down)
+                if rect.left < 0 or rect.right > self.width or \
+                     rect.top < 0 or rect.bottom > self.height:
+                    pass
+                else:
+                    self.bullets.append(rect)
+        elif event.type == KEYUP:
+            if event.key == pygame.K_SPACE:
+                self.bulletrect = self.bullet.get_rect()
+                self.bulletrect = self.bulletrect.move(self.planerect.center)
+                self.bullets.append(self.bulletrect)
+    
     def OnLoop(self):
         pass
     def OnRender(self):
@@ -68,11 +85,6 @@ class CApp:
         elif pressed_keys[pygame.K_RIGHT]:
             self.planerect = self.planerect.move(self.speed_right)
             self.BorderHandle()
-        elif pressed_keys[pygame.K_SPACE]:
-            self.bulletrect = self.bullet.get_rect()
-            self.bulletrect = self.bulletrect.move(self.planerect.center)
-            self.bullets.append(self.bulletrect)
-#            self.MoveBullet = True
 
     def BorderHandle(self):
         """
@@ -107,21 +119,8 @@ class CApp:
         pygame.display.flip()
         self._display_surf.blit(self.background, (0, 0))
         self._display_surf.blit(self.plane, self.planerect)
-        #pygame.time.delay(1000)
-        if True:#self.MoveBullet:
-            for rect in self.bullets:
-                #pygame.time.delay(3)
-                #self._display_surf.blit(self.background, (0, 0))
-                #self._display_surf.blit(self.plane, self.planerect)                
-                self.bullets.remove(rect)
-                rect = rect.move(self.speed_down)
-                if rect.left < 0 or rect.right > self.width or \
-                     rect.top < 0 or rect.bottom > self.height:
-                    pass
-                else:
-                    pygame.time.delay(1)
-                    self._display_surf.blit(self.bullet, rect)
-                    self.bullets.append(rect)
+        for rect in self.bullets:
+            self._display_surf.blit(self.bullet, rect)
 
     def OnCleanup(self):
         pygame.quit()
@@ -137,10 +136,6 @@ class CApp:
             self.OnRender()
             self.BallMoveBykey()
             self.Blit()
-            #self.DrawBullet()
-            #self.BallMoveBykey()
-            #self.BulletMove()
-            #self.OnCleanup()
  
 if __name__ == "__main__" :
     theApp = CApp()
