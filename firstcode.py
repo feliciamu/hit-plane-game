@@ -32,7 +32,7 @@ class CApp:
         self._display_surf.blit(self.background, (0, 0))
 
         # add a plane
-        self.plane = pygame.image.load("plane.bmp")
+        self.plane = pygame.image.load("plane.png")
         self.planerect = self.plane.get_rect()
 
         # add a bullet image
